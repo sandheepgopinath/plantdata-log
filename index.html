@@ -51,9 +51,39 @@
         .animate-pulse-soft {
             animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
+
+        /* Modal Backdrop */
+        #password-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen selection:bg-blue-500/30">
+
+    <!-- Password Modal -->
+    <div id="password-modal">
+        <div class="glass-card p-8 rounded-[2rem] w-full max-w-md border border-white/10 shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-2">Authorize Deletion</h3>
+            <p id="modal-desc" class="text-slate-400 text-sm mb-6 leading-relaxed">Please enter the administrative password to clear the selected batch data from the cloud.</p>
+            
+            <input type="password" id="admin-pass" placeholder="••••••••" 
+                class="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all mb-4 font-mono">
+            
+            <div id="modal-error" class="text-rose-400 text-[10px] font-bold uppercase tracking-widest mb-4 hidden">Invalid Password</div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="closeModal()" class="py-3 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 transition-all text-slate-300">Cancel</button>
+                <button onclick="confirmClearData()" class="py-3 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 transition-all text-white">Clear Data</button>
+            </div>
+        </div>
+    </div>
 
     <div class="max-w-7xl mx-auto p-4 md:p-10">
         <!-- Header -->
@@ -101,7 +131,13 @@
             <div class="lg:col-span-4 space-y-6">
                 <!-- Project Selector -->
                 <div class="glass-card p-6 rounded-3xl">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Project / Batch Filter</h3>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Project / Batch Filter</h3>
+                        <button onclick="openClearModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500/20 hover:border-rose-500/40 active:scale-95 transition-all text-[10px] font-bold uppercase tracking-widest">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            Clear Data
+                        </button>
+                    </div>
                     <div class="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar" id="project-filter-container">
                         <button onclick="setProjectFilter('all')" data-project="all" class="project-btn project-btn-active w-full text-left px-4 py-3 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">
                             All Active Batches
@@ -167,7 +203,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBnuEebPEA9rY5ILG8F3zRVNzQj9xfxm-Y",
@@ -185,6 +221,7 @@
 
         let currentTimeFilter = 'all';
         let currentProjectFilter = 'all';
+        let allRawData = {}; // Store raw data for deletion purposes
         let allDataPoints = [];
         let uniqueProjects = new Set();
         const cardElements = {};
@@ -197,6 +234,10 @@
         const dataCountDisplay = document.getElementById('data-point-count');
         const projectLabel = document.getElementById('current-project-label');
         const projectContainer = document.getElementById('project-filter-container');
+        const passwordModal = document.getElementById('password-modal');
+        const adminPassInput = document.getElementById('admin-pass');
+        const modalError = document.getElementById('modal-error');
+        const modalDesc = document.getElementById('modal-desc');
 
         // Initialize Chart.js
         const ctx = document.getElementById('tempChart').getContext('2d');
@@ -266,6 +307,55 @@
             });
             projectLabel.innerText = filter === 'all' ? 'All Projects Active' : `Project: ${filter}`;
             updateUI();
+        };
+
+        // Modal Controls
+        window.openClearModal = () => {
+            const batchName = currentProjectFilter === 'all' ? 'ALL active logs' : `Batch ${currentProjectFilter.split(' | ')[0]}`;
+            modalDesc.innerText = `You are about to permanently delete all records for [${batchName}]. This action cannot be undone.`;
+            passwordModal.style.display = 'flex';
+            adminPassInput.value = '';
+            adminPassInput.focus();
+            modalError.classList.add('hidden');
+        };
+
+        window.closeModal = () => {
+            passwordModal.style.display = 'none';
+        };
+
+        window.confirmClearData = async () => {
+            if (adminPassInput.value === 'vss123') {
+                const keysToDelete = [];
+                
+                // Identify keys matching the current project filter
+                Object.entries(allRawData).forEach(([key, val]) => {
+                    const p = val.project || {};
+                    const projKey = `${p.batch_id || '?' } | ${p.seed_type || 'Unknown'} | ${p.substrate || 'No Substrate'}`;
+                    
+                    if (currentProjectFilter === 'all' || projKey === currentProjectFilter) {
+                        keysToDelete.push(key);
+                    }
+                });
+
+                if (keysToDelete.length === 0) {
+                    addLog("No data found to clear for this filter.", "info");
+                    closeModal();
+                    return;
+                }
+
+                addLog(`Clearing ${keysToDelete.length} records...`, "info");
+                
+                try {
+                    const deletePromises = keysToDelete.map(key => remove(ref(db, `logs/${key}`)));
+                    await Promise.all(deletePromises);
+                    addLog("Database purge successful.", "success");
+                    closeModal();
+                } catch (err) {
+                    addLog(`Purge failed: ${err.message}`, "error");
+                }
+            } else {
+                modalError.classList.remove('hidden');
+            }
         };
 
         function addLog(msg, type = 'info') {
@@ -357,21 +447,35 @@
             dataCountDisplay.innerText = `${filtered.length} Points Filtered`;
             if (filtered.length > 0) {
                 const latest = filtered[filtered.length - 1];
-                
-                // Calculate Average
                 const sum = filtered.reduce((acc, curr) => acc + curr.temperature, 0);
                 const avg = sum / filtered.length;
 
                 updateStatCard('Current Temp', latest.temperature.toFixed(1), '°C', 'blue');
                 updateStatCard('Average Temp', avg.toFixed(1), '°C', 'emerald');
                 updateStatCard('Sample Size', filtered.length, 'Records', 'blue');
+            } else {
+                // Handle empty states
+                if(cardElements['val-current-temp']) cardElements['val-current-temp'].innerText = '--';
+                if(cardElements['val-average-temp']) cardElements['val-average-temp'].innerText = '--';
+                if(cardElements['val-sample-size']) cardElements['val-sample-size'].innerText = '0';
             }
         }
 
         // Main Sync
         onValue(logsRef, (snapshot) => {
             const data = snapshot.val();
-            if (!data) return;
+            if (!data) {
+                allRawData = {};
+                allDataPoints = [];
+                uniqueProjects.clear();
+                refreshProjectFilterUI();
+                updateUI();
+                addLog("Database currently contains no log entries.", "info");
+                return;
+            }
+
+            allRawData = data;
+            uniqueProjects.clear();
 
             const entries = Object.entries(data).map(([key, val]) => {
                 const p = val.project || {};
