@@ -306,7 +306,8 @@
                         fill: true, 
                         tension: 0.4, 
                         pointRadius: 0,
-                        pointHoverRadius: 5
+                        pointHoverRadius: 5,
+                        spanGaps: true // CONNECT GAPS: Ensures the line doesn't break for records missing fields
                     }]
                 },
                 options: {
@@ -455,12 +456,12 @@
                 c.chart.update('none');
                 
                 // Current Value
-                const val = c.data[c.data.length - 1];
-                const numericVal = formatValue(val);
+                const lastVal = c.data[c.data.length - 1];
+                const numericVal = formatValue(lastVal);
                 document.getElementById(c.stat).innerText = numericVal !== null ? `${numericVal.toFixed(1)}${c.unit}` : '--';
 
-                // Average Value (Ignoring Nulls)
-                const validPoints = c.data.filter(v => v !== null && v !== undefined);
+                // Average Value (STRICT FILTERING: Ignores nulls AND NaNs)
+                const validPoints = c.data.filter(v => v !== null && v !== undefined && !isNaN(v));
                 if (validPoints.length > 0) {
                     const sum = validPoints.reduce((a, b) => a + b, 0);
                     const avg = sum / validPoints.length;
@@ -474,9 +475,9 @@
             if (allDataPoints.length > 0) {
                 const latest = allDataPoints[allDataPoints.length - 1];
                 const failing = [];
-                if (latest.temperature === null || latest.temperature === undefined) failing.push("Temperature");
-                if (latest.humidity === null || latest.humidity === undefined) failing.push("Humidity");
-                if (latest.light === null || latest.light === undefined) failing.push("Light");
+                if (latest.temperature === null || isNaN(latest.temperature)) failing.push("Temperature");
+                if (latest.humidity === null || isNaN(latest.humidity)) failing.push("Humidity");
+                if (latest.light === null || isNaN(latest.light)) failing.push("Light");
 
                 if (failing.length > 0) {
                     sensorBanner.style.display = 'block';
@@ -510,13 +511,16 @@
                 const projKey = `${p.batch_id || '?' } | ${p.seed_type || 'Unknown'} | ${p.substrate || 'No Substrate'}`;
                 uniqueProjects.add(projKey);
                 
+                // MAPPER FIX: Safely parse numbers and handle the switch to 'light_level'
+                const t = parseFloat(val.temperature);
+                const h = parseFloat(val.humidity);
+                const l = parseFloat(val.light_level ?? val.light);
+
                 return {
                     timestamp: val.timestamp || 0,
-                    temperature: val.temperature !== undefined && val.temperature !== null ? parseFloat(val.temperature) : null,
-                    humidity: val.humidity !== undefined && val.humidity !== null ? parseFloat(val.humidity) : null,
-                    light: (val.light_level !== undefined && val.light_level !== null) 
-                        ? parseFloat(val.light_level) 
-                        : (val.light !== undefined && val.light !== null ? parseFloat(val.light) : null),
+                    temperature: isNaN(t) ? null : t,
+                    humidity: isNaN(h) ? null : h,
+                    light: isNaN(l) ? null : l,
                     projectKey: projKey
                 };
             }).sort((a, b) => a.timestamp - b.timestamp);
