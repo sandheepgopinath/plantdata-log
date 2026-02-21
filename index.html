@@ -63,9 +63,35 @@
             align-items: center;
             justify-content: center;
         }
+
+        .sensor-banner {
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen selection:bg-blue-500/30">
+
+    <!-- Sensor Failure Banner -->
+    <div id="sensor-fault-banner" class="sensor-banner sticky top-0 z-[60] bg-rose-600 text-white px-6 py-3 shadow-2xl">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <div>
+                    <span class="font-bold uppercase tracking-widest text-xs">Sensor Fault Detected:</span>
+                    <span id="fault-details" class="ml-2 text-sm font-medium opacity-90">One or more hardware modules are returning NULL data.</span>
+                </div>
+            </div>
+            <button onclick="document.getElementById('sensor-fault-banner').style.display='none'" class="text-white/60 hover:text-white">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+    </div>
 
     <!-- Password Modal -->
     <div id="password-modal">
@@ -100,12 +126,7 @@
                     </h1>
                 </div>
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <span id="current-project-label" class="text-slate-400 font-medium">All Projects Active</span>
-                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
-                    <span class="text-slate-500 text-sm flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
-                        Bangalore Node
-                    </span>
+                    <span id="current-project-label" class="text-slate-400 font-medium text-lg italic">Intelligent Biosphere Sync</span>
                 </div>
             </div>
 
@@ -132,13 +153,13 @@
                 <!-- Project Selector -->
                 <div class="glass-card p-6 rounded-3xl">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Project / Batch Filter</h3>
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Active Batches</h3>
                         <button onclick="openClearModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500/20 hover:border-rose-500/40 active:scale-95 transition-all text-[10px] font-bold uppercase tracking-widest">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            Clear Data
+                            Clear
                         </button>
                     </div>
-                    <div class="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar" id="project-filter-container">
+                    <div class="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar" id="project-filter-container">
                         <button onclick="setProjectFilter('all')" data-project="all" class="project-btn project-btn-active w-full text-left px-4 py-3 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">
                             All Active Batches
                         </button>
@@ -149,9 +170,9 @@
                 <div class="glass-card p-6 rounded-3xl">
                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Time Range</h3>
                     <div class="grid grid-cols-3 gap-2" id="time-filter-container">
-                        <button onclick="setTimeFilter('10m')" data-time="10m" class="time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">10 Min</button>
-                        <button onclick="setTimeFilter('1d')" data-time="1d" class="time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">24 Hour</button>
-                        <button onclick="setTimeFilter('all')" data-time="all" class="time-btn-active time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">Lifetime</button>
+                        <button onclick="setTimeFilter('10m')" data-time="10m" class="time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">10m</button>
+                        <button onclick="setTimeFilter('1d')" data-time="1d" class="time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">24h</button>
+                        <button onclick="setTimeFilter('all')" data-time="all" class="time-btn-active time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">All</button>
                     </div>
                 </div>
 
@@ -163,34 +184,59 @@
                 </div>
             </div>
 
-            <!-- Right Column: Visualization & Logs -->
+            <!-- Right Column: Visualization Grid -->
             <div class="lg:col-span-8 space-y-6">
-                <!-- Main Chart -->
-                <div class="glass-card p-8 rounded-[2.5rem] relative overflow-hidden">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                        <div>
-                            <h3 class="text-2xl font-extrabold text-white">Thermal Intelligence</h3>
-                            <p class="text-sm text-slate-500 font-medium">Temperature (°C) across batches</p>
-                        </div>
-                        <div class="flex items-center gap-2 bg-slate-950/40 px-3 py-1.5 rounded-full border border-slate-800/50">
-                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                            <span id="data-point-count" class="text-[10px] font-mono text-slate-300">0 Points</span>
+                
+                <!-- Temperature Chart -->
+                <div class="glass-card p-6 rounded-[2rem] border-l-4 border-blue-500/30">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Temperature History (°C)</h3>
+                        <div class="text-right">
+                            <div id="temp-stat" class="text-sm font-black text-blue-400">--</div>
+                            <div id="temp-avg" class="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">Avg: --</div>
                         </div>
                     </div>
-                    
-                    <div class="h-[400px] w-full">
+                    <div class="h-[200px] w-full">
                         <canvas id="tempChart"></canvas>
                     </div>
                 </div>
 
+                <!-- Humidity Chart -->
+                <div class="glass-card p-6 rounded-[2rem] border-l-4 border-emerald-500/30">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Humidity Levels (%)</h3>
+                        <div class="text-right">
+                            <div id="humid-stat" class="text-sm font-black text-emerald-400">--</div>
+                            <div id="humid-avg" class="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">Avg: --</div>
+                        </div>
+                    </div>
+                    <div class="h-[200px] w-full">
+                        <canvas id="humidChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Light Chart -->
+                <div class="glass-card p-6 rounded-[2rem] border-l-4 border-amber-500/30">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Light Intensity (%)</h3>
+                        <div class="text-right">
+                            <div id="light-stat" class="text-sm font-black text-amber-400">--</div>
+                            <div id="light-avg" class="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">Avg: --</div>
+                        </div>
+                    </div>
+                    <div class="h-[200px] w-full">
+                        <canvas id="lightChart"></canvas>
+                    </div>
+                </div>
+
                 <!-- Event Log -->
-                <div class="glass-card rounded-[2rem] flex flex-col h-[350px] overflow-hidden">
+                <div class="glass-card rounded-[2rem] flex flex-col h-[250px] overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-800/50 flex justify-between items-center bg-white/2">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Real-time Stream</h3>
-                        <span class="text-[10px] font-mono text-slate-500">Hardware Bridge</span>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">System Log</h3>
+                        <span id="data-point-count" class="text-[10px] font-mono text-slate-500">0 Points Syncing</span>
                     </div>
                     <div id="log-container" class="flex-grow p-6 space-y-3 font-mono text-[11px] overflow-y-auto custom-scrollbar bg-slate-950/20">
-                        <div class="text-slate-600 animate-pulse">Establishing secure WebSocket connection to Firebase node...</div>
+                        <div class="text-slate-600 animate-pulse">Initializing cloud handshake...</div>
                     </div>
                 </div>
             </div>
@@ -221,7 +267,7 @@
 
         let currentTimeFilter = 'all';
         let currentProjectFilter = 'all';
-        let allRawData = {}; // Store raw data for deletion purposes
+        let allRawData = {};
         let allDataPoints = [];
         let uniqueProjects = new Set();
         const cardElements = {};
@@ -232,63 +278,67 @@
         const logContainer = document.getElementById('log-container');
         const statsGrid = document.getElementById('stats-grid');
         const dataCountDisplay = document.getElementById('data-point-count');
-        const projectLabel = document.getElementById('current-project-label');
         const projectContainer = document.getElementById('project-filter-container');
         const passwordModal = document.getElementById('password-modal');
         const adminPassInput = document.getElementById('admin-pass');
         const modalError = document.getElementById('modal-error');
         const modalDesc = document.getElementById('modal-desc');
+        const sensorBanner = document.getElementById('sensor-fault-banner');
+        const faultDetails = document.getElementById('fault-details');
 
-        // Initialize Chart.js
-        const ctx = document.getElementById('tempChart').getContext('2d');
-        const blueGradient = ctx.createLinearGradient(0, 0, 0, 400);
-        blueGradient.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
-        blueGradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+        // Chart Init Helper
+        function createChart(id, color, label) {
+            const ctx = document.getElementById(id).getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, `${color}44`);
+            gradient.addColorStop(1, `${color}00`);
 
-        const tempChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{ 
-                    label: 'Temperature', 
-                    data: [], 
-                    borderColor: '#60a5fa', 
-                    borderWidth: 3, 
-                    backgroundColor: blueGradient, 
-                    fill: true, 
-                    tension: 0.45, 
-                    pointRadius: 0,
-                    pointHitRadius: 10,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { intersect: false, mode: 'index' },
-                plugins: { 
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        titleFont: { size: 10, family: 'JetBrains Mono' },
-                        bodyFont: { size: 13, weight: 'bold' },
-                        padding: 12,
-                        cornerRadius: 12,
-                        callbacks: { label: (c) => `${c.parsed.y.toFixed(2)}°C` }
-                    }
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{ 
+                        label, 
+                        data: [], 
+                        borderColor: color, 
+                        borderWidth: 2.5, 
+                        backgroundColor: gradient, 
+                        fill: true, 
+                        tension: 0.4, 
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }]
                 },
-                scales: {
-                    y: { 
-                        grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
-                        ticks: { color: '#64748b', font: { size: 11 } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 10,
+                            cornerRadius: 8,
+                            titleFont: { family: 'JetBrains Mono' }
+                        }
                     },
-                    x: { 
-                        grid: { display: false }, 
-                        ticks: { color: '#64748b', font: { size: 10 }, autoSkip: true, maxTicksLimit: 6 } 
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
+                            ticks: { color: '#64748b', font: { size: 10 } }
+                        },
+                        x: { 
+                            grid: { display: false }, 
+                            ticks: { color: '#475569', font: { size: 9 }, autoSkip: true, maxTicksLimit: 6 } 
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+
+        const tempChart = createChart('tempChart', '#3b82f6', 'Temp (°C)');
+        const humidChart = createChart('humidChart', '#10b981', 'Humidity (%)');
+        const lightChart = createChart('lightChart', '#f59e0b', 'Light (%)');
 
         window.setTimeFilter = (filter) => {
             currentTimeFilter = filter;
@@ -305,11 +355,9 @@
                 if(isActive) btn.classList.add('project-btn-active', 'bg-emerald-500/10', 'border-emerald-500/40', 'text-emerald-400');
                 else btn.classList.remove('project-btn-active', 'bg-emerald-500/10', 'border-emerald-500/40', 'text-emerald-400');
             });
-            projectLabel.innerText = filter === 'all' ? 'All Projects Active' : `Project: ${filter}`;
             updateUI();
         };
 
-        // Modal Controls
         window.openClearModal = () => {
             const batchName = currentProjectFilter === 'all' ? 'ALL active logs' : `Batch ${currentProjectFilter.split(' | ')[0]}`;
             modalDesc.innerText = `You are about to permanently delete all records for [${batchName}]. This action cannot be undone.`;
@@ -319,43 +367,23 @@
             modalError.classList.add('hidden');
         };
 
-        window.closeModal = () => {
-            passwordModal.style.display = 'none';
-        };
+        window.closeModal = () => passwordModal.style.display = 'none';
 
         window.confirmClearData = async () => {
             if (adminPassInput.value === 'vss123') {
                 const keysToDelete = [];
-                
-                // Identify keys matching the current project filter
                 Object.entries(allRawData).forEach(([key, val]) => {
                     const p = val.project || {};
                     const projKey = `${p.batch_id || '?' } | ${p.seed_type || 'Unknown'} | ${p.substrate || 'No Substrate'}`;
-                    
-                    if (currentProjectFilter === 'all' || projKey === currentProjectFilter) {
-                        keysToDelete.push(key);
-                    }
+                    if (currentProjectFilter === 'all' || projKey === currentProjectFilter) keysToDelete.push(key);
                 });
-
-                if (keysToDelete.length === 0) {
-                    addLog("No data found to clear for this filter.", "info");
-                    closeModal();
-                    return;
-                }
-
-                addLog(`Clearing ${keysToDelete.length} records...`, "info");
-                
                 try {
                     const deletePromises = keysToDelete.map(key => remove(ref(db, `logs/${key}`)));
                     await Promise.all(deletePromises);
-                    addLog("Database purge successful.", "success");
                     closeModal();
-                } catch (err) {
-                    addLog(`Purge failed: ${err.message}`, "error");
-                }
-            } else {
-                modalError.classList.remove('hidden');
-            }
+                    addLog("Batch data purged successfully.", "success");
+                } catch (err) { addLog(`Purge failed: ${err.message}`, "error"); }
+            } else { modalError.classList.remove('hidden'); }
         };
 
         function addLog(msg, type = 'info') {
@@ -364,25 +392,19 @@
             let color = 'text-slate-400', prefix = '●';
             if (type === 'success') { color = 'text-emerald-400'; prefix = '✓'; }
             if (type === 'error') { color = 'text-rose-400'; prefix = '×'; }
-            entry.className = `${color} flex gap-3 transition-all duration-300 transform`;
+            entry.className = `${color} flex gap-3 transition-all duration-300`;
             entry.innerHTML = `<span class="text-slate-700 shrink-0">[${time}]</span> <span class="shrink-0 font-bold">${prefix}</span> <span>${msg}</span>`;
             logContainer.prepend(entry);
-            if(logContainer.children.length > 40) logContainer.lastChild.remove();
+            if(logContainer.children.length > 30) logContainer.lastChild.remove();
         }
 
         function updateStatCard(key, value, unit = '', color = 'blue') {
             const id = `val-${key.replace(/\s+/g, '-').toLowerCase()}`;
             if (!cardElements[id]) {
                 const card = document.createElement('div');
-                const borderColor = color === 'emerald' ? 'hover:border-emerald-500/30' : 'hover:border-blue-500/30';
+                const borderColor = color === 'emerald' ? 'hover:border-emerald-500/30' : color === 'amber' ? 'hover:border-amber-500/30' : 'hover:border-blue-500/30';
                 card.className = `glass-card p-6 rounded-3xl group border-l-2 border-transparent ${borderColor} transition-all duration-500`;
-                card.innerHTML = `
-                    <p class="text-slate-500 text-[10px] font-bold mb-2 tracking-[0.2em] uppercase">${key}</p>
-                    <div class="flex items-baseline gap-1">
-                        <h2 id="${id}" class="text-4xl font-black text-white stat-glow">--</h2>
-                        <span class="text-slate-400 text-sm font-bold uppercase">${unit}</span>
-                    </div>
-                `;
+                card.innerHTML = `<p class="text-slate-500 text-[10px] font-bold mb-2 tracking-[0.2em] uppercase">${key}</p><div class="flex items-baseline gap-1"><h2 id="${id}" class="text-4xl font-black text-white stat-glow">--</h2><span class="text-slate-400 text-sm font-bold uppercase">${unit}</span></div>`;
                 statsGrid.appendChild(card);
                 cardElements[id] = document.getElementById(id);
                 if (statsGrid.children[0]?.innerText.includes("Synchronizing")) statsGrid.children[0].remove();
@@ -394,114 +416,116 @@
             const allBtn = projectContainer.querySelector('[data-project="all"]');
             projectContainer.innerHTML = '';
             projectContainer.appendChild(allBtn);
-
             Array.from(uniqueProjects).sort().forEach(projKey => {
                 const btn = document.createElement('button');
                 btn.onclick = () => setProjectFilter(projKey);
                 btn.dataset.project = projKey;
                 btn.className = `project-btn w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold border border-slate-700/50 hover:bg-white/5 transition-all mb-2 leading-relaxed`;
-                
-                const parts = projKey.split(' | ');
-                btn.innerHTML = `
-                    <div class="flex justify-between items-center opacity-60 mb-1">
-                        <span>BATCH ${parts[0]}</span>
-                        <span>${parts[1]}</span>
-                    </div>
-                    <div class="text-xs">${parts[2]}</div>
-                `;
-                
-                if(currentProjectFilter === projKey) {
-                    btn.classList.add('project-btn-active', 'bg-emerald-500/10', 'border-emerald-500/40', 'text-emerald-400');
-                }
+                const p = projKey.split(' | ');
+                btn.innerHTML = `<div class="flex justify-between items-center opacity-60 mb-1"><span>BATCH ${p[0]}</span><span>${p[1]}</span></div><div class="text-xs">${p[2]}</div>`;
+                if(currentProjectFilter === projKey) btn.classList.add('project-btn-active', 'bg-emerald-500/10', 'border-emerald-500/40', 'text-emerald-400');
                 projectContainer.appendChild(btn);
             });
         }
 
-        function updateUI() {
-            const now = Date.now();
-            
-            // Filter by Project
-            let filtered = allDataPoints;
-            if (currentProjectFilter !== 'all') {
-                filtered = filtered.filter(d => d.projectKey === currentProjectFilter);
-            }
-
-            // Filter by Time
-            if (currentTimeFilter === '10m') {
-                filtered = filtered.filter(d => d.timestamp >= (now - 600000));
-            } else if (currentTimeFilter === '1d') {
-                filtered = filtered.filter(d => d.timestamp >= (now - 86400000));
-            }
-
-            // Update Chart
-            tempChart.data.labels = filtered.map(d => {
-                const date = new Date(d.timestamp);
-                return currentTimeFilter === 'all' 
-                    ? date.toLocaleDateString([], {month: 'short', day: 'numeric'}) 
-                    : date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            });
-            tempChart.data.datasets[0].data = filtered.map(d => d.temperature);
-            tempChart.update('none');
-
-            // Update Stats
-            dataCountDisplay.innerText = `${filtered.length} Points Filtered`;
-            if (filtered.length > 0) {
-                const latest = filtered[filtered.length - 1];
-                const sum = filtered.reduce((acc, curr) => acc + curr.temperature, 0);
-                const avg = sum / filtered.length;
-
-                updateStatCard('Current Temp', latest.temperature.toFixed(1), '°C', 'blue');
-                updateStatCard('Average Temp', avg.toFixed(1), '°C', 'emerald');
-                updateStatCard('Sample Size', filtered.length, 'Records', 'blue');
-            } else {
-                // Handle empty states
-                if(cardElements['val-current-temp']) cardElements['val-current-temp'].innerText = '--';
-                if(cardElements['val-average-temp']) cardElements['val-average-temp'].innerText = '--';
-                if(cardElements['val-sample-size']) cardElements['val-sample-size'].innerText = '0';
-            }
+        function formatValue(val) {
+            const num = parseFloat(val);
+            return isNaN(num) ? null : num;
         }
 
-        // Main Sync
+        function updateUI() {
+            const now = Date.now();
+            let filtered = allDataPoints;
+            if (currentProjectFilter !== 'all') filtered = filtered.filter(d => d.projectKey === currentProjectFilter);
+            if (currentTimeFilter === '10m') filtered = filtered.filter(d => d.timestamp >= (now - 600000));
+            else if (currentTimeFilter === '1d') filtered = filtered.filter(d => d.timestamp >= (now - 86400000));
+
+            const labels = filtered.map(d => new Date(d.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+
+            // Update Charts and Averages
+            const charts = [
+                { chart: tempChart, data: filtered.map(d => d.temperature), stat: 'temp-stat', avgEl: 'temp-avg', unit: '°C' },
+                { chart: humidChart, data: filtered.map(d => d.humidity), stat: 'humid-stat', avgEl: 'humid-avg', unit: '%' },
+                { chart: lightChart, data: filtered.map(d => d.light), stat: 'light-stat', avgEl: 'light-avg', unit: '%' }
+            ];
+
+            charts.forEach(c => {
+                c.chart.data.labels = labels;
+                c.chart.data.datasets[0].data = c.data;
+                c.chart.update('none');
+                
+                // Current Value
+                const val = c.data[c.data.length - 1];
+                const numericVal = formatValue(val);
+                document.getElementById(c.stat).innerText = numericVal !== null ? `${numericVal.toFixed(1)}${c.unit}` : '--';
+
+                // Average Value (Ignoring Nulls)
+                const validPoints = c.data.filter(v => v !== null && v !== undefined);
+                if (validPoints.length > 0) {
+                    const sum = validPoints.reduce((a, b) => a + b, 0);
+                    const avg = sum / validPoints.length;
+                    document.getElementById(c.avgEl).innerText = `Avg: ${avg.toFixed(1)}${c.unit}`;
+                } else {
+                    document.getElementById(c.avgEl).innerText = `Avg: --`;
+                }
+            });
+
+            // Sensor Fault Check (on latest entry)
+            if (allDataPoints.length > 0) {
+                const latest = allDataPoints[allDataPoints.length - 1];
+                const failing = [];
+                if (latest.temperature === null || latest.temperature === undefined) failing.push("Temperature");
+                if (latest.humidity === null || latest.humidity === undefined) failing.push("Humidity");
+                if (latest.light === null || latest.light === undefined) failing.push("Light");
+
+                if (failing.length > 0) {
+                    sensorBanner.style.display = 'block';
+                    faultDetails.innerText = `${failing.join(", ")} sensor(s) reporting null data. Check hardware connection.`;
+                } else {
+                    sensorBanner.style.display = 'none';
+                }
+
+                // Global Stats Card Update
+                const t = formatValue(latest.temperature);
+                const h = formatValue(latest.humidity);
+                const l = formatValue(latest.light);
+                updateStatCard('Current Temperature', t !== null ? t.toFixed(1) : '--', '°C', 'blue');
+                updateStatCard('Current Humidity', h !== null ? h.toFixed(1) : '--', '%', 'emerald');
+                updateStatCard('Current Light', l !== null ? l.toFixed(1) : '--', '%', 'amber');
+            }
+            
+            dataCountDisplay.innerText = `${filtered.length} points active`;
+        }
+
         onValue(logsRef, (snapshot) => {
             const data = snapshot.val();
-            if (!data) {
-                allRawData = {};
-                allDataPoints = [];
-                uniqueProjects.clear();
-                refreshProjectFilterUI();
-                updateUI();
-                addLog("Database currently contains no log entries.", "info");
-                return;
+            if (!data) { 
+                allRawData = {}; allDataPoints = []; uniqueProjects.clear(); 
+                refreshProjectFilterUI(); updateUI(); return; 
             }
-
             allRawData = data;
             uniqueProjects.clear();
-
-            const entries = Object.entries(data).map(([key, val]) => {
+            allDataPoints = Object.entries(data).map(([key, val]) => {
                 const p = val.project || {};
                 const projKey = `${p.batch_id || '?' } | ${p.seed_type || 'Unknown'} | ${p.substrate || 'No Substrate'}`;
                 uniqueProjects.add(projKey);
                 
                 return {
                     timestamp: val.timestamp || 0,
-                    temperature: parseFloat(val.temperature || 0),
-                    batch_id: p.batch_id || '?',
-                    seed_type: p.seed_type || 'Unknown',
-                    substrate: p.substrate || 'Unknown',
+                    temperature: val.temperature !== undefined && val.temperature !== null ? parseFloat(val.temperature) : null,
+                    humidity: val.humidity !== undefined && val.humidity !== null ? parseFloat(val.humidity) : null,
+                    light: (val.light_level !== undefined && val.light_level !== null) 
+                        ? parseFloat(val.light_level) 
+                        : (val.light !== undefined && val.light !== null ? parseFloat(val.light) : null),
                     projectKey: projKey
                 };
-            });
-
-            allDataPoints = entries.sort((a, b) => a.timestamp - b.timestamp);
+            }).sort((a, b) => a.timestamp - b.timestamp);
             
             refreshProjectFilterUI();
             updateUI();
-
-            statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> System Active`;
+            statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online`;
             statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
             liveIndicator.classList.remove('hidden');
-        }, (error) => {
-            addLog(`Connection Failed: ${error.message}`, 'error');
         });
     </script>
 </body>
