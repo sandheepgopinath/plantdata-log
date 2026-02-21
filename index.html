@@ -145,7 +145,7 @@
             </div>
 
             <div class="flex flex-col items-end gap-3 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/50">
-                <div id="status-badge" class="flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-800 text-slate-500 border border-slate-700">
+                <div id="status-badge" class="flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-800 text-slate-500 border border-slate-700 transition-colors duration-500">
                     <span class="w-2 h-2 rounded-full bg-slate-600 animate-pulse"></span>
                     Handshaking...
                 </div>
@@ -469,6 +469,21 @@
 
             if (allDataPoints.length > 0) {
                 const latest = allDataPoints[allDataPoints.length - 1];
+                
+                // OFFLINE CHECK: If latest data is > 10 mins old
+                const isOffline = (now - latest.timestamp) > 600000;
+                
+                if (isOffline) {
+                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> System Offline`;
+                    statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                    liveIndicator.classList.add('hidden');
+                } else {
+                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> System Online`;
+                    statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                    liveIndicator.classList.remove('hidden');
+                }
+
+                // Sensor Fault Check
                 const failing = [];
                 if (latest.temperature === null || isNaN(latest.temperature)) failing.push("Temp");
                 if (latest.humidity === null || isNaN(latest.humidity)) failing.push("Humid");
@@ -563,10 +578,10 @@
             });
 
             updateUI();
-            statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online`;
-            statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-            liveIndicator.classList.remove('hidden');
         });
+
+        // Periodic maintenance to check for "Offline" status even if no new data arrives
+        setInterval(updateUI, 60000);
     </script>
 </body>
 </html>
