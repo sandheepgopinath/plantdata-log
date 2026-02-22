@@ -87,8 +87,14 @@
             color: #f59e0b !important;
             box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
         }
+        .btn-active-blue {
+            background: rgba(59, 130, 246, 0.2) !important;
+            border-color: rgba(59, 130, 246, 0.5) !important;
+            color: #60a5fa !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
 
-        .color-btn-active {
+        .control-btn-active {
             background: rgba(255, 255, 255, 0.1) !important;
             border-color: rgba(255, 255, 255, 0.5) !important;
             color: #ffffff !important;
@@ -174,7 +180,7 @@
                 <!-- Hardware Overrides -->
                 <div class="glass-card p-6 rounded-3xl">
                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Hardware Overrides</h3>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-2 gap-4">
                         <button id="fan-toggle" onclick="requestHardwareToggle('fan')" class="flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-700/50 hover:bg-white/5 transition-all group">
                             <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -189,10 +195,27 @@
                             <span class="text-[10px] font-bold uppercase tracking-widest">Grow Light</span>
                             <span id="light-status-text" class="text-[9px] opacity-50 font-bold">OFFLINE</span>
                         </button>
+                        <button id="mist-toggle" onclick="requestHardwareToggle('mist')" class="flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-700/50 hover:bg-white/5 transition-all group col-span-2">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-1.932 0l-2.387.477a2 2 0 00-1.022.547l-3.84 3.84a12.01 12.01 0 0019.38 0l-3.84-3.84z"></path></svg>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Mist Module</span>
+                            <span id="mist-status-text" class="text-[9px] opacity-50 font-bold">OFFLINE</span>
+                        </button>
+                    </div>
+
+                    <!-- Fan Speed Panel -->
+                    <div id="fan-speed-panel" class="hidden space-y-4 pt-6 mt-6 border-t border-slate-800 animate-slideDown">
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Speed Control</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="requestSpeedChange('low')" data-speed="low" class="speed-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Low</button>
+                            <button onclick="requestSpeedChange('medium')" data-speed="medium" class="speed-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Med</button>
+                            <button onclick="requestSpeedChange('high')" data-speed="high" class="speed-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">High</button>
+                        </div>
                     </div>
 
                     <!-- Light Color Spectrum Control -->
-                    <div id="spectrum-panel" class="hidden space-y-4 pt-6 border-t border-slate-800 animate-slideDown">
+                    <div id="spectrum-panel" class="hidden space-y-4 pt-6 mt-6 border-t border-slate-800 animate-slideDown">
                         <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Spectrum Selection</h4>
                         <div class="grid grid-cols-2 gap-2">
                             <button onclick="requestColorChange('blurple')" data-color="blurple" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Blurple</button>
@@ -318,7 +341,7 @@
         const logsRef = ref(db, 'logs'); 
         const controlRef = ref(db, 'control'); 
 
-        // DOM Selections
+        // DOM Selection & Scoping
         const statusBadge = document.getElementById('status-badge');
         const liveIndicator = document.getElementById('live-indicator');
         const logContainer = document.getElementById('log-container');
@@ -332,11 +355,17 @@
         const modalDesc = document.getElementById('modal-desc');
         const sensorBanner = document.getElementById('sensor-fault-banner');
         const faultDetails = document.getElementById('fault-details');
+        
         const fanBtn = document.getElementById('fan-toggle');
         const lightBtn = document.getElementById('light-toggle');
+        const mistBtn = document.getElementById('mist-toggle');
+        
         const fanStatusText = document.getElementById('fan-status-text');
         const lightStatusText = document.getElementById('light-status-text');
+        const mistStatusText = document.getElementById('mist-status-text');
+        
         const spectrumPanel = document.getElementById('spectrum-panel');
+        const fanSpeedPanel = document.getElementById('fan-speed-panel');
 
         let currentTimeFilter = 'all';
         let currentProjectFilter = 'all';
@@ -345,7 +374,7 @@
         let uniqueProjects = new Set();
         const cardElements = {};
         let pendingAction = null;
-        let hardwareStates = { fan: false, light: false, color: 'white' };
+        let hardwareStates = { fan: false, light: false, mist: false, color: 'white', speed: 'medium' };
 
         // Chart Initialization
         function createChart(id, color, label) {
@@ -421,12 +450,17 @@
 
         window.requestHardwareToggle = (device) => {
             const newState = !hardwareStates[device];
-            openModal(`${device.toUpperCase()} Control`, `Authorization required to toggle ${device} to ${newState ? 'ON' : 'OFF'}.`, { type: 'hw', device, state: newState });
+            openModal(`${device.toUpperCase()} Control`, `Authorization required to switch ${device} to ${newState ? 'ON' : 'OFF'}.`, { type: 'hw', device, state: newState });
         };
 
         window.requestColorChange = (color) => {
             if (color === hardwareStates.color) return;
             openModal("Spectrum Override", `Authorization required to switch light spectrum to ${color.toUpperCase()}.`, { type: 'color', color });
+        };
+
+        window.requestSpeedChange = (speed) => {
+            if (speed === hardwareStates.speed) return;
+            openModal("Fan Calibration", `Authorization required to set fan speed to ${speed.toUpperCase()}.`, { type: 'speed', speed });
         };
 
         window.handleAuthorizedAction = async () => {
@@ -451,14 +485,18 @@
                 } 
                 else if (pendingAction.type === 'hw') {
                     await set(ref(db, `control/${pendingAction.device}`), pendingAction.state);
-                    addLog(`${pendingAction.device.toUpperCase()} toggle command successful.`, "success");
+                    addLog(`${pendingAction.device.toUpperCase()} command sent.`, "success");
                 }
                 else if (pendingAction.type === 'color') {
                     await set(ref(db, `control/color`), pendingAction.color);
                     addLog(`Light spectrum set to ${pendingAction.color.toUpperCase()}.`, "success");
                 }
+                else if (pendingAction.type === 'speed') {
+                    await set(ref(db, `control/speed`), pendingAction.speed);
+                    addLog(`Fan speed set to ${pendingAction.speed.toUpperCase()}.`, "success");
+                }
             } catch (err) {
-                addLog(`Action failed: ${err.message}`, "error");
+                addLog(`Command failed: ${err.message}`, "error");
             }
 
             closeModal();
@@ -469,7 +507,9 @@
             const data = snapshot.val() || {};
             hardwareStates.fan = !!data.fan;
             hardwareStates.light = !!data.light;
+            hardwareStates.mist = !!data.mist;
             hardwareStates.color = data.color || 'white';
+            hardwareStates.speed = data.speed || 'medium';
 
             // Fan UI Update
             fanBtn.classList.toggle('btn-active-emerald', hardwareStates.fan);
@@ -482,17 +522,23 @@
             lightStatusText.innerText = hardwareStates.light ? "ACTIVE" : "STANDBY";
             lightStatusText.classList.toggle('opacity-100', hardwareStates.light);
             lightStatusText.classList.toggle('opacity-50', !hardwareStates.light);
+            
+            // Mist UI Update
+            mistBtn.classList.toggle('btn-active-blue', hardwareStates.mist);
+            mistStatusText.innerText = hardwareStates.mist ? "ACTIVE" : "STANDBY";
+            mistStatusText.classList.toggle('opacity-100', hardwareStates.mist);
+            mistStatusText.classList.toggle('opacity-50', !hardwareStates.mist);
 
-            // Show/Hide Spectrum Panel
-            if (hardwareStates.light) {
-                spectrumPanel.classList.remove('hidden');
-            } else {
-                spectrumPanel.classList.add('hidden');
-            }
+            // Toggle Settings Panels
+            spectrumPanel.classList.toggle('hidden', !hardwareStates.light);
+            fanSpeedPanel.classList.toggle('hidden', !hardwareStates.fan);
 
             // Sync text button active states
             document.querySelectorAll('.color-select-btn').forEach(btn => {
-                btn.classList.toggle('color-btn-active', btn.dataset.color === hardwareStates.color);
+                btn.classList.toggle('control-btn-active', btn.dataset.color === hardwareStates.color);
+            });
+            document.querySelectorAll('.speed-select-btn').forEach(btn => {
+                btn.classList.toggle('control-btn-active', btn.dataset.speed === hardwareStates.speed);
             });
         });
 
