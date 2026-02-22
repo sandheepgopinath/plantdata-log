@@ -87,6 +87,13 @@
             color: #f59e0b !important;
             box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
         }
+
+        .color-btn-active {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen selection:bg-blue-500/30">
@@ -167,7 +174,7 @@
                 <!-- Hardware Overrides -->
                 <div class="glass-card p-6 rounded-3xl">
                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Hardware Overrides</h3>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
                         <button id="fan-toggle" onclick="requestHardwareToggle('fan')" class="flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-700/50 hover:bg-white/5 transition-all group">
                             <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -182,6 +189,17 @@
                             <span class="text-[10px] font-bold uppercase tracking-widest">Grow Light</span>
                             <span id="light-status-text" class="text-[9px] opacity-50 font-bold">OFFLINE</span>
                         </button>
+                    </div>
+
+                    <!-- Light Color Spectrum Control -->
+                    <div id="spectrum-panel" class="hidden space-y-4 pt-6 border-t border-slate-800 animate-slideDown">
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Spectrum Selection</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="requestColorChange('blurple')" data-color="blurple" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Blurple</button>
+                            <button onclick="requestColorChange('white')" data-color="white" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">White</button>
+                            <button onclick="requestColorChange('red')" data-color="red" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Red</button>
+                            <button onclick="requestColorChange('blue')" data-color="blue" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Blue</button>
+                        </div>
                     </div>
                 </div>
 
@@ -300,7 +318,7 @@
         const logsRef = ref(db, 'logs'); 
         const controlRef = ref(db, 'control'); 
 
-        // Variable Scoping & DOM Selection
+        // DOM Selections
         const statusBadge = document.getElementById('status-badge');
         const liveIndicator = document.getElementById('live-indicator');
         const logContainer = document.getElementById('log-container');
@@ -318,6 +336,7 @@
         const lightBtn = document.getElementById('light-toggle');
         const fanStatusText = document.getElementById('fan-status-text');
         const lightStatusText = document.getElementById('light-status-text');
+        const spectrumPanel = document.getElementById('spectrum-panel');
 
         let currentTimeFilter = 'all';
         let currentProjectFilter = 'all';
@@ -326,7 +345,7 @@
         let uniqueProjects = new Set();
         const cardElements = {};
         let pendingAction = null;
-        let hardwareStates = { fan: false, light: false };
+        let hardwareStates = { fan: false, light: false, color: 'white' };
 
         // Chart Initialization
         function createChart(id, color, label) {
@@ -361,7 +380,7 @@
         const humidChart = createChart('humidChart', '#10b981', 'Humidity (%)');
         const lightChart = createChart('lightChart', '#f59e0b', 'Light (%)');
 
-        // Global UI Event Listeners
+        // Core UI Event Listeners
         window.setTimeFilter = (filter) => {
             currentTimeFilter = filter;
             document.querySelectorAll('.time-btn').forEach(btn => btn.classList.toggle('time-btn-active', btn.dataset.time === filter));
@@ -397,12 +416,17 @@
 
         window.requestClearData = () => {
             const label = currentProjectFilter === 'all' ? 'all database records' : `Batch ${currentProjectFilter.split(' | ')[0]}`;
-            openModal("Purge Database", `Warning: You are about to permanently delete ${label}.`, { type: 'purge' });
+            openModal("Purge Database", `Warning: Admin authorization required to delete ${label}.`, { type: 'purge' });
         };
 
         window.requestHardwareToggle = (device) => {
             const newState = !hardwareStates[device];
-            openModal(`${device.toUpperCase()} Control`, `Administrative authorization required to toggle ${device} to ${newState ? 'ON' : 'OFF'}.`, { type: 'hw', device, state: newState });
+            openModal(`${device.toUpperCase()} Control`, `Authorization required to toggle ${device} to ${newState ? 'ON' : 'OFF'}.`, { type: 'hw', device, state: newState });
+        };
+
+        window.requestColorChange = (color) => {
+            if (color === hardwareStates.color) return;
+            openModal("Spectrum Override", `Authorization required to switch light spectrum to ${color.toUpperCase()}.`, { type: 'color', color });
         };
 
         window.handleAuthorizedAction = async () => {
@@ -413,28 +437,64 @@
 
             if (!pendingAction) return;
 
-            if (pendingAction.type === 'purge') {
-                const keysToDelete = [];
-                Object.entries(allRawData).forEach(([key, val]) => {
-                    const p = val.project || {};
-                    const projKey = `${p.batch_id || '?' } | ${p.seed_type || 'Unknown'} | ${p.substrate || 'No Substrate'}`;
-                    if (currentProjectFilter === 'all' || projKey === currentProjectFilter) keysToDelete.push(key);
-                });
-                try {
+            try {
+                if (pendingAction.type === 'purge') {
+                    const keysToDelete = [];
+                    Object.entries(allRawData).forEach(([key, val]) => {
+                        const p = val.project || {};
+                        const projKey = `${p.batch_id || '?' } | ${p.seed_type || 'Unknown'} | ${p.substrate || 'No Substrate'}`;
+                        if (currentProjectFilter === 'all' || projKey === currentProjectFilter) keysToDelete.push(key);
+                    });
                     const deletePromises = keysToDelete.map(key => remove(ref(db, `logs/${key}`)));
                     await Promise.all(deletePromises);
                     addLog("Database records purged successfully.", "success");
-                } catch (err) { addLog(`Purge error: ${err.message}`, "error"); }
-            } 
-            else if (pendingAction.type === 'hw') {
-                try {
+                } 
+                else if (pendingAction.type === 'hw') {
                     await set(ref(db, `control/${pendingAction.device}`), pendingAction.state);
-                    addLog(`${pendingAction.device.toUpperCase()} command executed.`, "success");
-                } catch (err) { addLog(`Hardware error: ${err.message}`, "error"); }
+                    addLog(`${pendingAction.device.toUpperCase()} toggle command successful.`, "success");
+                }
+                else if (pendingAction.type === 'color') {
+                    await set(ref(db, `control/color`), pendingAction.color);
+                    addLog(`Light spectrum set to ${pendingAction.color.toUpperCase()}.`, "success");
+                }
+            } catch (err) {
+                addLog(`Action failed: ${err.message}`, "error");
             }
 
             closeModal();
         };
+
+        // Real-time Listeners
+        onValue(controlRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            hardwareStates.fan = !!data.fan;
+            hardwareStates.light = !!data.light;
+            hardwareStates.color = data.color || 'white';
+
+            // Fan UI Update
+            fanBtn.classList.toggle('btn-active-emerald', hardwareStates.fan);
+            fanStatusText.innerText = hardwareStates.fan ? "ACTIVE" : "STANDBY";
+            fanStatusText.classList.toggle('opacity-100', hardwareStates.fan);
+            fanStatusText.classList.toggle('opacity-50', !hardwareStates.fan);
+
+            // Light UI Update
+            lightBtn.classList.toggle('btn-active-amber', hardwareStates.light);
+            lightStatusText.innerText = hardwareStates.light ? "ACTIVE" : "STANDBY";
+            lightStatusText.classList.toggle('opacity-100', hardwareStates.light);
+            lightStatusText.classList.toggle('opacity-50', !hardwareStates.light);
+
+            // Show/Hide Spectrum Panel
+            if (hardwareStates.light) {
+                spectrumPanel.classList.remove('hidden');
+            } else {
+                spectrumPanel.classList.add('hidden');
+            }
+
+            // Sync text button active states
+            document.querySelectorAll('.color-select-btn').forEach(btn => {
+                btn.classList.toggle('color-btn-active', btn.dataset.color === hardwareStates.color);
+            });
+        });
 
         // UI Update Logic
         function updateUI() {
@@ -469,8 +529,6 @@
 
             if (allDataPoints.length > 0) {
                 const latest = allDataPoints[allDataPoints.length - 1];
-                
-                // OFFLINE CHECK: If latest data is > 10 mins old
                 const isOffline = (now - latest.timestamp) > 600000;
                 
                 if (isOffline) {
@@ -483,7 +541,6 @@
                     liveIndicator.classList.remove('hidden');
                 }
 
-                // Sensor Fault Check
                 const failing = [];
                 if (latest.temperature === null || isNaN(latest.temperature)) failing.push("Temp");
                 if (latest.humidity === null || isNaN(latest.humidity)) failing.push("Humid");
@@ -527,29 +584,9 @@
             cardElements[id].innerText = value;
         }
 
-        // Real-time Listeners
-        onValue(controlRef, (snapshot) => {
-            const data = snapshot.val() || {};
-            hardwareStates.fan = !!data.fan;
-            hardwareStates.light = !!data.light;
-
-            fanBtn.classList.toggle('btn-active-emerald', hardwareStates.fan);
-            fanStatusText.innerText = hardwareStates.fan ? "ACTIVE" : "STANDBY";
-            fanStatusText.classList.toggle('opacity-100', hardwareStates.fan);
-            fanStatusText.classList.toggle('opacity-50', !hardwareStates.fan);
-
-            lightBtn.classList.toggle('btn-active-amber', hardwareStates.light);
-            lightStatusText.innerText = hardwareStates.light ? "ACTIVE" : "STANDBY";
-            lightStatusText.classList.toggle('opacity-100', hardwareStates.light);
-            lightStatusText.classList.toggle('opacity-50', !hardwareStates.light);
-        });
-
         onValue(logsRef, (snapshot) => {
             const data = snapshot.val();
-            if (!data) { 
-                allRawData = {}; allDataPoints = []; uniqueProjects.clear(); 
-                updateUI(); return; 
-            }
+            if (!data) { allRawData = {}; allDataPoints = []; updateUI(); return; }
             allRawData = data; uniqueProjects.clear();
             allDataPoints = Object.entries(data).map(([key, val]) => {
                 const p = val.project || {};
@@ -563,7 +600,6 @@
                 };
             }).sort((a, b) => a.timestamp - b.timestamp);
             
-            // Rebuild project filter list
             const allBtn = projectContainer.querySelector('[data-project="all"]');
             projectContainer.innerHTML = ''; projectContainer.appendChild(allBtn);
             Array.from(uniqueProjects).sort().forEach(projKey => {
@@ -576,11 +612,9 @@
                 if(currentProjectFilter === projKey) btn.classList.add('project-btn-active', 'bg-emerald-500/10', 'border-emerald-500/40', 'text-emerald-400');
                 projectContainer.appendChild(btn);
             });
-
             updateUI();
         });
 
-        // Periodic maintenance to check for "Offline" status even if no new data arrives
         setInterval(updateUI, 60000);
     </script>
 </body>
