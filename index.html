@@ -7,19 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at top right, #0f172a, #020617);
+            background-color: #f0f2f5;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(244, 63, 94, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
         }
 
         .glass-card {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
 
         .custom-scrollbar::-webkit-scrollbar {
@@ -29,44 +35,43 @@
             background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(71, 85, 105, 0.5);
+            background: rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
 
         .filter-btn-active {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: rgba(59, 130, 246, 0.4);
-            color: #60a5fa;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);
         }
 
         .stat-glow {
-            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
         }
         
         @keyframes pulse-soft {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
         }
         .animate-pulse-soft {
-            animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            animation: pulse-soft 3s ease-in-out infinite;
         }
 
-        /* Modal Backdrop */
         #password-modal {
             display: none;
             position: fixed;
             inset: 0;
             z-index: 100;
-            background: rgba(2, 6, 23, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(12px);
             align-items: center;
             justify-content: center;
         }
 
         .sensor-banner {
             display: none;
-            animation: slideDown 0.4s ease-out;
+            animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes slideDown {
@@ -76,45 +81,42 @@
 
         /* Control Button States */
         .btn-active-emerald {
-            background: rgba(16, 185, 129, 0.2) !important;
-            border-color: rgba(16, 185, 129, 0.5) !important;
-            color: #10b981 !important;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+            background: rgba(16, 185, 129, 0.15) !important;
+            border-color: rgba(16, 185, 129, 0.4) !important;
+            color: #059669 !important;
         }
         .btn-active-amber {
-            background: rgba(245, 158, 11, 0.2) !important;
-            border-color: rgba(245, 158, 11, 0.5) !important;
-            color: #f59e0b !important;
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+            background: rgba(245, 158, 11, 0.15) !important;
+            border-color: rgba(245, 158, 11, 0.4) !important;
+            color: #d97706 !important;
         }
         .btn-active-blue {
-            background: rgba(59, 130, 246, 0.2) !important;
-            border-color: rgba(59, 130, 246, 0.5) !important;
-            color: #60a5fa !important;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+            background: rgba(59, 130, 246, 0.15) !important;
+            border-color: rgba(59, 130, 246, 0.4) !important;
+            color: #2563eb !important;
         }
 
         .control-btn-active {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border-color: rgba(255, 255, 255, 0.5) !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            background: rgba(59, 130, 246, 0.1) !important;
+            border-color: rgba(59, 130, 246, 0.4) !important;
+            color: #2563eb !important;
+            font-weight: 700;
         }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen selection:bg-blue-500/30">
+<body class="text-slate-900 min-h-screen selection:bg-blue-200">
 
     <!-- Sensor Failure Banner -->
-    <div id="sensor-fault-banner" class="sensor-banner sticky top-0 z-[60] bg-rose-600 text-white px-6 py-3 shadow-2xl">
+    <div id="sensor-fault-banner" class="sensor-banner sticky top-0 z-[60] bg-rose-500 text-white px-6 py-3 shadow-lg">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 <div>
-                    <span class="font-bold uppercase tracking-widest text-xs">Sensor Fault Detected:</span>
+                    <span class="font-bold uppercase tracking-widest text-xs">Sensor Fault</span>
                     <span id="fault-details" class="ml-2 text-sm font-medium opacity-90">Hardware modules returning NULL.</span>
                 </div>
             </div>
-            <button onclick="document.getElementById('sensor-fault-banner').style.display='none'" class="text-white/60 hover:text-white">
+            <button onclick="document.getElementById('sensor-fault-banner').style.display='none'" class="hover:bg-white/20 p-1 rounded-full transition-colors">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
             </button>
         </div>
@@ -122,203 +124,202 @@
 
     <!-- Unified Authorization Modal -->
     <div id="password-modal">
-        <div class="glass-card p-8 rounded-[2rem] w-full max-w-md border border-white/10 shadow-2xl">
-            <h3 class="text-xl font-bold text-white mb-2" id="modal-title">Authorize Command</h3>
-            <p id="modal-desc" class="text-slate-400 text-sm mb-6 leading-relaxed">Administrative password required to modify hardware state or cloud records.</p>
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-md border-white shadow-2xl">
+            <h3 class="text-2xl font-extrabold text-slate-900 mb-2" id="modal-title">Authorize</h3>
+            <p id="modal-desc" class="text-slate-500 text-sm mb-6 leading-relaxed">Password required to modify hardware state.</p>
             
             <input type="password" id="admin-pass" placeholder="••••••••" 
-                class="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all mb-4 font-mono">
+                class="w-full bg-white/50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all mb-4 font-mono text-lg tracking-widest">
             
-            <div id="modal-error" class="text-rose-400 text-[10px] font-bold uppercase tracking-widest mb-4 hidden">Invalid Credentials</div>
+            <div id="modal-error" class="text-rose-600 text-xs font-bold uppercase tracking-widest mb-4 hidden px-2">Incorrect Password</div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="closeModal()" class="py-3 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 transition-all text-slate-300">Cancel</button>
-                <button onclick="handleAuthorizedAction()" class="py-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 transition-all text-white" id="modal-confirm-btn">Execute</button>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="closeModal()" class="py-4 rounded-2xl text-sm font-bold bg-slate-100 hover:bg-slate-200 transition-all text-slate-600">Cancel</button>
+                <button onclick="handleAuthorizedAction()" class="py-4 rounded-2xl text-sm font-bold bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all text-white" id="modal-confirm-btn">Confirm</button>
             </div>
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto p-4 md:p-10">
+    <div class="max-w-7xl mx-auto p-6 md:p-10">
         <!-- Header -->
-        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 gap-6">
-            <div class="space-y-2">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 gap-8">
+            <div class="space-y-4">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 glass-card rounded-2xl border-white bg-blue-500/10 shadow-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                     </div>
-                    <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-white">
-                        MICROGREEN <span class="text-emerald-400">MONITOR</span>
+                    <h1 class="text-4xl md:text-5xl font-black tracking-tight text-slate-900">
+                        Microgreen <span class="text-blue-600">Monitor</span>
                     </h1>
                 </div>
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <span id="current-project-label" class="text-slate-400 font-medium text-lg italic">Integrated Biosphere Controller</span>
+                <div class="flex flex-col gap-2">
+                    <span id="current-project-label" class="text-slate-600 font-semibold text-lg">Biosphere Intelligence Center</span>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                        <span id="last-update-text" class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.15em]">Last Telemetry: Syncing...</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex flex-col items-end gap-3 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/50">
-                <div id="status-badge" class="flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-800 text-slate-500 border border-slate-700 transition-colors duration-500">
-                    <span class="w-2 h-2 rounded-full bg-slate-600 animate-pulse"></span>
-                    Handshaking...
+            <div class="flex flex-col items-end gap-3">
+                <div id="status-badge" class="flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] bg-white border border-slate-200 text-slate-400 shadow-sm transition-all duration-500">
+                    <span class="w-2 h-2 rounded-full bg-slate-300 animate-pulse"></span>
+                    Initializing...
                 </div>
-                <div id="live-indicator" class="hidden flex items-center gap-2 text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
+                <div id="live-indicator" class="hidden flex items-center gap-2 text-[10px] font-bold text-blue-500 uppercase tracking-widest">
                     <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                     </span>
-                    Real-time Active
+                    Live Stream Active
                 </div>
             </div>
         </header>
 
         <!-- Main Dashboard -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <!-- Left Column: Controls & Stats -->
-            <div class="lg:col-span-4 space-y-6">
+            <div class="lg:col-span-4 space-y-8">
                 <!-- Hardware Overrides -->
-                <div class="glass-card p-6 rounded-3xl">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Hardware Overrides</h3>
-                    <div class="grid grid-cols-2 lg:grid-cols-2 gap-4">
-                        <button id="fan-toggle" onclick="requestHardwareToggle('fan')" class="flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-700/50 hover:bg-white/5 transition-all group">
-                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                <div class="glass-card p-8 rounded-[2.5rem]">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.25em] mb-6">Hardware Overrides</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button id="fan-toggle" onclick="requestHardwareToggle('fan')" class="flex flex-col items-center gap-4 p-5 rounded-[1.75rem] border border-slate-200 bg-white/40 hover:bg-white/60 transition-all group">
+                            <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </div>
-                            <span class="text-[10px] font-bold uppercase tracking-widest">Fan Module</span>
-                            <span id="fan-status-text" class="text-[9px] opacity-50 font-bold">OFFLINE</span>
+                            <div class="text-center">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Fan</p>
+                                <span id="fan-status-text" class="text-[10px] font-bold opacity-40">OFFLINE</span>
+                            </div>
                         </button>
-                        <button id="light-toggle" onclick="requestHardwareToggle('light')" class="flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-700/50 hover:bg-white/5 transition-all group">
-                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path></svg>
+                        <button id="light-toggle" onclick="requestHardwareToggle('light')" class="flex flex-col items-center gap-4 p-5 rounded-[1.75rem] border border-slate-200 bg-white/40 hover:bg-white/60 transition-all group">
+                            <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path></svg>
                             </div>
-                            <span class="text-[10px] font-bold uppercase tracking-widest">Grow Light</span>
-                            <span id="light-status-text" class="text-[9px] opacity-50 font-bold">OFFLINE</span>
+                            <div class="text-center">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Light</p>
+                                <span id="light-status-text" class="text-[10px] font-bold opacity-40">OFFLINE</span>
+                            </div>
                         </button>
-                        <button id="mist-toggle" onclick="requestHardwareToggle('mist')" class="flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-700/50 hover:bg-white/5 transition-all group col-span-2">
-                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-1.932 0l-2.387.477a2 2 0 00-1.022.547l-3.84 3.84a12.01 12.01 0 0019.38 0l-3.84-3.84z"></path></svg>
+                        <button id="mist-toggle" onclick="requestHardwareToggle('mist')" class="flex flex-col items-center gap-4 p-5 rounded-[1.75rem] border border-slate-200 bg-white/40 hover:bg-white/60 transition-all group col-span-2">
+                            <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-1.932 0l-2.387.477a2 2 0 00-1.022.547l-3.84 3.84a12.01 12.01 0 0019.38 0l-3.84-3.84z"></path></svg>
                             </div>
-                            <span class="text-[10px] font-bold uppercase tracking-widest">Mist Module</span>
-                            <span id="mist-status-text" class="text-[9px] opacity-50 font-bold">OFFLINE</span>
+                            <div class="text-center">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Mist Module</p>
+                                <span id="mist-status-text" class="text-[10px] font-bold opacity-40">OFFLINE</span>
+                            </div>
                         </button>
                     </div>
 
-                    <!-- Fan Speed Panel -->
-                    <div id="fan-speed-panel" class="hidden space-y-4 pt-6 mt-6 border-t border-slate-800 animate-slideDown">
-                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Speed Control</h4>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="requestSpeedChange('low')" data-speed="low" class="speed-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Low</button>
-                            <button onclick="requestSpeedChange('medium')" data-speed="medium" class="speed-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Med</button>
-                            <button onclick="requestSpeedChange('high')" data-speed="high" class="speed-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">High</button>
-                        </div>
-                    </div>
-
-                    <!-- Light Color Spectrum Control -->
-                    <div id="spectrum-panel" class="hidden space-y-4 pt-6 mt-6 border-t border-slate-800 animate-slideDown">
-                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Spectrum Selection</h4>
+                    <!-- Spectrum Panel -->
+                    <div id="spectrum-panel" class="hidden space-y-4 pt-8 mt-8 border-t border-slate-200/50 animate-slideDown">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Spectrum Selection</h4>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="requestColorChange('blurple')" data-color="blurple" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Blurple</button>
-                            <button onclick="requestColorChange('white')" data-color="white" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">White</button>
-                            <button onclick="requestColorChange('red')" data-color="red" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Red</button>
-                            <button onclick="requestColorChange('blue')" data-color="blue" class="color-select-btn py-2.5 rounded-xl text-[10px] font-bold uppercase border border-slate-700/50 hover:bg-white/5 transition-all">Blue</button>
+                            <button onclick="requestColorChange('blurple')" data-color="blurple" class="color-select-btn py-3 rounded-2xl text-[11px] font-bold uppercase border border-slate-200 bg-white/50 hover:bg-white/80 transition-all">Blurple</button>
+                            <button onclick="requestColorChange('white')" data-color="white" class="color-select-btn py-3 rounded-2xl text-[11px] font-bold uppercase border border-slate-200 bg-white/50 hover:bg-white/80 transition-all">White</button>
+                            <button onclick="requestColorChange('red')" data-color="red" class="color-select-btn py-3 rounded-2xl text-[11px] font-bold uppercase border border-slate-200 bg-white/50 hover:bg-white/80 transition-all">Red</button>
+                            <button onclick="requestColorChange('blue')" data-color="blue" class="color-select-btn py-3 rounded-2xl text-[11px] font-bold uppercase border border-slate-200 bg-white/50 hover:bg-white/80 transition-all">Blue</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Project Selector -->
-                <div class="glass-card p-6 rounded-3xl">
+                <div class="glass-card p-8 rounded-[2.5rem]">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Active Batches</h3>
-                        <button onclick="requestClearData()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500/20 hover:border-rose-500/40 active:scale-95 transition-all text-[10px] font-bold uppercase tracking-widest">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.25em]">Active Batches</h3>
+                        <button onclick="requestClearData()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-100 active:scale-95 transition-all text-[10px] font-black uppercase tracking-widest">
                             Purge
                         </button>
                     </div>
-                    <div class="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar" id="project-filter-container">
-                        <button onclick="setProjectFilter('all')" data-project="all" class="project-btn project-btn-active w-full text-left px-4 py-3 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">
-                            All Active Batches
+                    <div class="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar" id="project-filter-container">
+                        <button onclick="setProjectFilter('all')" data-project="all" class="project-btn project-btn-active w-full text-left px-5 py-4 rounded-2xl text-[11px] font-bold border border-slate-200 bg-white/50 hover:bg-white/80 transition-all">
+                            All Active Experiments
                         </button>
                     </div>
                 </div>
 
                 <!-- Timeline Selector -->
-                <div class="glass-card p-6 rounded-3xl">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Time Range</h3>
-                    <div class="grid grid-cols-3 gap-2" id="time-filter-container">
-                        <button onclick="setTimeFilter('10m')" data-time="10m" class="time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">10m</button>
-                        <button onclick="setTimeFilter('1d')" data-time="1d" class="time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">24h</button>
-                        <button onclick="setTimeFilter('all')" data-time="all" class="time-btn-active time-btn py-2.5 rounded-xl text-xs font-semibold border border-slate-700/50 hover:bg-white/5 transition-all">All</button>
+                <div class="glass-card p-8 rounded-[2.5rem]">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.25em] mb-6">View range</h3>
+                    <div class="grid grid-cols-3 gap-3" id="time-filter-container">
+                        <button onclick="setTimeFilter('10m')" data-time="10m" class="time-btn py-3 rounded-2xl text-[11px] font-bold uppercase border border-slate-200 bg-white/50 hover:bg-white/80 transition-all">10m</button>
+                        <button onclick="setTimeFilter('1d')" data-time="1d" class="time-btn py-3 rounded-2xl text-[11px] font-bold uppercase border border-slate-200 bg-white/50 hover:bg-white/80 transition-all">24h</button>
+                        <button onclick="setTimeFilter('all')" data-time="all" class="time-btn-active time-btn py-3 rounded-2xl text-[11px] font-bold uppercase border border-slate-200 bg-white/50 hover:bg-white/80 transition-all">All</button>
                     </div>
                 </div>
 
                 <!-- Stats Stack -->
-                <div id="stats-grid" class="grid grid-cols-1 gap-4">
-                    <div class="glass-card p-6 rounded-3xl animate-pulse-soft flex flex-col items-center justify-center min-h-[140px]">
-                        <p class="text-slate-500 text-sm italic">Hardware telemetry sync...</p>
+                <div id="stats-grid" class="grid grid-cols-1 gap-6">
+                    <div class="glass-card p-8 rounded-[2.5rem] animate-pulse-soft flex flex-col items-center justify-center min-h-[140px]">
+                        <p class="text-slate-400 text-sm italic">Synchronizing sensors...</p>
                     </div>
                 </div>
             </div>
 
             <!-- Right Column: Visualization Grid -->
-            <div class="lg:col-span-8 space-y-6">
+            <div class="lg:col-span-8 space-y-8">
                 <!-- Temperature Chart -->
-                <div class="glass-card p-6 rounded-[2rem] border-l-4 border-blue-500/30">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Temperature history (°C)</h3>
-                        <div class="text-right">
-                            <div id="temp-stat" class="text-sm font-black text-blue-400">--</div>
-                            <div id="temp-avg" class="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">Avg: --</div>
+                <div class="glass-card p-8 rounded-[3rem] border-l-[6px] border-blue-500/50">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 id="temp-header-label" class="text-xl font-black text-slate-900 tracking-tight transition-all">Temp: --</h3>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Thermal Stability</p>
                         </div>
+                        <div id="temp-avg" class="px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-[10px] font-black text-blue-600 uppercase tracking-tighter shadow-sm">Avg: --</div>
                     </div>
-                    <div class="h-[200px] w-full">
+                    <div class="h-[240px] w-full">
                         <canvas id="tempChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Humidity Chart -->
-                <div class="glass-card p-6 rounded-[2rem] border-l-4 border-emerald-500/30">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Humidity Levels (%)</h3>
-                        <div class="text-right">
-                            <div id="humid-stat" class="text-sm font-black text-emerald-400">--</div>
-                            <div id="humid-avg" class="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">Avg: --</div>
+                <div class="glass-card p-8 rounded-[3rem] border-l-[6px] border-emerald-500/50">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 id="humid-header-label" class="text-xl font-black text-slate-900 tracking-tight transition-all">Humidity: --</h3>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Vapor Pressure</p>
                         </div>
+                        <div id="humid-avg" class="px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-700 uppercase tracking-tighter shadow-sm">Avg: --</div>
                     </div>
-                    <div class="h-[200px] w-full">
+                    <div class="h-[240px] w-full">
                         <canvas id="humidChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Light Chart -->
-                <div class="glass-card p-6 rounded-[2rem] border-l-4 border-amber-500/30">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Light Intensity (%)</h3>
-                        <div class="text-right">
-                            <div id="light-stat" class="text-sm font-black text-amber-400">--</div>
-                            <div id="light-avg" class="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">Avg: --</div>
+                <div class="glass-card p-8 rounded-[3rem] border-l-[6px] border-amber-500/50">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 id="light-header-label" class="text-xl font-black text-slate-900 tracking-tight transition-all">Light: --</h3>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Intensity Index</p>
                         </div>
+                        <div id="light-avg" class="px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-black text-amber-700 uppercase tracking-tighter shadow-sm">Avg: --</div>
                     </div>
-                    <div class="h-[200px] w-full">
+                    <div class="h-[240px] w-full">
                         <canvas id="lightChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Event Log -->
-                <div class="glass-card rounded-[2rem] flex flex-col h-[250px] overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-800/50 flex justify-between items-center bg-white/2">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Hardware Logic Log</h3>
-                        <span id="data-point-count" class="text-[10px] font-mono text-slate-500">0 Points Syncing</span>
+                <div class="glass-card rounded-[3rem] flex flex-col h-[300px] overflow-hidden">
+                    <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white/40">
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.25em]">System Logic</h3>
+                        <span id="data-point-count" class="text-[10px] font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full">0 Points</span>
                     </div>
-                    <div id="log-container" class="flex-grow p-6 space-y-3 font-mono text-[11px] overflow-y-auto custom-scrollbar bg-slate-950/20">
-                        <div class="text-slate-600 animate-pulse">Initializing IoT Bridge...</div>
+                    <div id="log-container" class="flex-grow p-8 space-y-4 font-mono text-[11px] overflow-y-auto custom-scrollbar">
+                        <div class="text-slate-400 italic">Listening for heartbeats...</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <footer class="mt-12 text-center">
-            <p class="text-slate-600 text-[10px] uppercase tracking-[0.4em]">Integrated Intelligence System &copy; 2024</p>
+        <footer class="mt-16 mb-8 text-center">
+            <p class="text-slate-300 text-[10px] font-black uppercase tracking-[0.6em]">Biosphere Controller v4.0.0 &copy; 2024</p>
         </footer>
     </div>
 
@@ -341,7 +342,7 @@
         const logsRef = ref(db, 'logs'); 
         const controlRef = ref(db, 'control'); 
 
-        // DOM Selection & Scoping
+        // DOM caching
         const statusBadge = document.getElementById('status-badge');
         const liveIndicator = document.getElementById('live-indicator');
         const logContainer = document.getElementById('log-container');
@@ -355,6 +356,7 @@
         const modalDesc = document.getElementById('modal-desc');
         const sensorBanner = document.getElementById('sensor-fault-banner');
         const faultDetails = document.getElementById('fault-details');
+        const lastUpdateLabel = document.getElementById('last-update-text');
         
         const fanBtn = document.getElementById('fan-toggle');
         const lightBtn = document.getElementById('light-toggle');
@@ -365,7 +367,6 @@
         const mistStatusText = document.getElementById('mist-status-text');
         
         const spectrumPanel = document.getElementById('spectrum-panel');
-        const fanSpeedPanel = document.getElementById('fan-speed-panel');
 
         let currentTimeFilter = 'all';
         let currentProjectFilter = 'all';
@@ -374,13 +375,13 @@
         let uniqueProjects = new Set();
         const cardElements = {};
         let pendingAction = null;
-        let hardwareStates = { fan: false, light: false, mist: false, color: 'white', speed: 'medium' };
+        let hardwareStates = { fan: false, light: false, mist: false, color: 'white' };
 
         // Chart Initialization
         function createChart(id, color, label) {
             const ctx = document.getElementById(id).getContext('2d');
-            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-            gradient.addColorStop(0, `${color}44`);
+            const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+            gradient.addColorStop(0, `${color}22`);
             gradient.addColorStop(1, `${color}00`);
 
             return new Chart(ctx, {
@@ -388,18 +389,33 @@
                 data: {
                     labels: [],
                     datasets: [{ 
-                        label, data: [], borderColor: color, borderWidth: 2.5, 
-                        backgroundColor: gradient, fill: true, tension: 0.4, 
-                        pointRadius: 0, pointHoverRadius: 5, spanGaps: true
+                        label, data: [], borderColor: color, borderWidth: 3.5, 
+                        backgroundColor: gradient, fill: true, tension: 0.45, 
+                        pointRadius: 0, pointHitRadius: 15, pointHoverRadius: 6,
+                        pointHoverBackgroundColor: color, pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 3, spanGaps: true
                     }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     interaction: { intersect: false, mode: 'index' },
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#0f172a',
+                            bodyColor: '#0f172a',
+                            bodyFont: { weight: 'bold' },
+                            padding: 12,
+                            borderColor: 'rgba(0,0,0,0.05)',
+                            borderWidth: 1,
+                            cornerRadius: 12,
+                            displayColors: false
+                        }
+                    },
                     scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, ticks: { color: '#64748b', font: { size: 10 } } },
-                        x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 9 }, autoSkip: true, maxTicksLimit: 6 } }
+                        y: { grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { color: '#94a3b8', font: { size: 10, weight: 'bold' } } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10, weight: 'bold' }, autoSkip: true, maxTicksLimit: 6 } }
                     }
                 }
             });
@@ -409,10 +425,10 @@
         const humidChart = createChart('humidChart', '#10b981', 'Humidity (%)');
         const lightChart = createChart('lightChart', '#f59e0b', 'Light (%)');
 
-        // Core UI Event Listeners
+        // Handlers
         window.setTimeFilter = (filter) => {
             currentTimeFilter = filter;
-            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.toggle('time-btn-active', btn.dataset.time === filter));
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.toggle('filter-btn-active', btn.dataset.time === filter));
             updateUI();
         };
 
@@ -420,14 +436,11 @@
             currentProjectFilter = filter;
             document.querySelectorAll('.project-btn').forEach(btn => {
                 const isActive = btn.dataset.project === filter;
-                btn.classList.toggle('project-btn-active', isActive);
-                if(isActive) btn.classList.add('bg-emerald-500/10', 'border-emerald-500/40', 'text-emerald-400');
-                else btn.classList.remove('bg-emerald-500/10', 'border-emerald-500/40', 'text-emerald-400');
+                btn.classList.toggle('filter-btn-active', isActive);
             });
             updateUI();
         };
 
-        // Authorization Logic
         window.openModal = (title, desc, action) => {
             modalTitle.innerText = title;
             modalDesc.innerText = desc;
@@ -444,28 +457,24 @@
         };
 
         window.requestClearData = () => {
-            const label = currentProjectFilter === 'all' ? 'all database records' : `Batch ${currentProjectFilter.split(' | ')[0]}`;
-            openModal("Purge Database", `Warning: Admin authorization required to delete ${label}.`, { type: 'purge' });
+            const label = currentProjectFilter === 'all' ? 'all telemetry logs' : `Batch ${currentProjectFilter.split(' | ')[0]}`;
+            openModal("Purge Cloud Data", `Admin clearance required to permanently delete ${label}.`, { type: 'purge' });
         };
 
         window.requestHardwareToggle = (device) => {
             const newState = !hardwareStates[device];
-            openModal(`${device.toUpperCase()} Control`, `Authorization required to switch ${device} to ${newState ? 'ON' : 'OFF'}.`, { type: 'hw', device, state: newState });
+            openModal(`${device.toUpperCase()} Control`, `Clearance required to switch ${device} to ${newState ? 'ACTIVE' : 'STANDBY'}.`, { type: 'hw', device, state: newState });
         };
 
         window.requestColorChange = (color) => {
             if (color === hardwareStates.color) return;
-            openModal("Spectrum Override", `Authorization required to switch light spectrum to ${color.toUpperCase()}.`, { type: 'color', color });
-        };
-
-        window.requestSpeedChange = (speed) => {
-            if (speed === hardwareStates.speed) return;
-            openModal("Fan Calibration", `Authorization required to set fan speed to ${speed.toUpperCase()}.`, { type: 'speed', speed });
+            openModal("Spectrum Override", `Clearance required to shift output to ${color.toUpperCase()}.`, { type: 'color', color });
         };
 
         window.handleAuthorizedAction = async () => {
             if (adminPassInput.value !== 'vss123') {
                 modalError.classList.remove('hidden');
+                adminPassInput.classList.add('border-rose-500');
                 return;
             }
 
@@ -481,68 +490,23 @@
                     });
                     const deletePromises = keysToDelete.map(key => remove(ref(db, `logs/${key}`)));
                     await Promise.all(deletePromises);
-                    addLog("Database records purged successfully.", "success");
+                    addLog("Manual cache purge successful.", "success");
                 } 
                 else if (pendingAction.type === 'hw') {
                     await set(ref(db, `control/${pendingAction.device}`), pendingAction.state);
-                    addLog(`${pendingAction.device.toUpperCase()} command sent.`, "success");
+                    addLog(`${pendingAction.device.toUpperCase()} command acknowledged.`, "success");
                 }
                 else if (pendingAction.type === 'color') {
                     await set(ref(db, `control/color`), pendingAction.color);
-                    addLog(`Light spectrum set to ${pendingAction.color.toUpperCase()}.`, "success");
-                }
-                else if (pendingAction.type === 'speed') {
-                    await set(ref(db, `control/speed`), pendingAction.speed);
-                    addLog(`Fan speed set to ${pendingAction.speed.toUpperCase()}.`, "success");
+                    addLog(`Spectral shift to ${pendingAction.color.toUpperCase()} complete.`, "success");
                 }
             } catch (err) {
-                addLog(`Command failed: ${err.message}`, "error");
+                addLog(`Command rejection: ${err.message}`, "error");
             }
 
             closeModal();
         };
 
-        // Real-time Listeners
-        onValue(controlRef, (snapshot) => {
-            const data = snapshot.val() || {};
-            hardwareStates.fan = !!data.fan;
-            hardwareStates.light = !!data.light;
-            hardwareStates.mist = !!data.mist;
-            hardwareStates.color = data.color || 'white';
-            hardwareStates.speed = data.speed || 'medium';
-
-            // Fan UI Update
-            fanBtn.classList.toggle('btn-active-emerald', hardwareStates.fan);
-            fanStatusText.innerText = hardwareStates.fan ? "ACTIVE" : "STANDBY";
-            fanStatusText.classList.toggle('opacity-100', hardwareStates.fan);
-            fanStatusText.classList.toggle('opacity-50', !hardwareStates.fan);
-
-            // Light UI Update
-            lightBtn.classList.toggle('btn-active-amber', hardwareStates.light);
-            lightStatusText.innerText = hardwareStates.light ? "ACTIVE" : "STANDBY";
-            lightStatusText.classList.toggle('opacity-100', hardwareStates.light);
-            lightStatusText.classList.toggle('opacity-50', !hardwareStates.light);
-            
-            // Mist UI Update
-            mistBtn.classList.toggle('btn-active-blue', hardwareStates.mist);
-            mistStatusText.innerText = hardwareStates.mist ? "ACTIVE" : "STANDBY";
-            mistStatusText.classList.toggle('opacity-100', hardwareStates.mist);
-            mistStatusText.classList.toggle('opacity-50', !hardwareStates.mist);
-
-            // Toggle Settings Panels
-            spectrumPanel.classList.toggle('hidden', !hardwareStates.light);
-            fanSpeedPanel.classList.toggle('hidden', !hardwareStates.fan);
-
-            // Sync text button active states
-            document.querySelectorAll('.color-select-btn').forEach(btn => {
-                btn.classList.toggle('control-btn-active', btn.dataset.color === hardwareStates.color);
-            });
-            document.querySelectorAll('.speed-select-btn').forEach(btn => {
-                btn.classList.toggle('control-btn-active', btn.dataset.speed === hardwareStates.speed);
-            });
-        });
-
-        // UI Update Logic
         function updateUI() {
             const now = Date.now();
             let filtered = allDataPoints;
@@ -553,9 +517,9 @@
             const labels = filtered.map(d => new Date(d.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
 
             const charts = [
-                { chart: tempChart, data: filtered.map(d => d.temperature), stat: 'temp-stat', avgEl: 'temp-avg', unit: '°C' },
-                { chart: humidChart, data: filtered.map(d => d.humidity), stat: 'humid-stat', avgEl: 'humid-avg', unit: '%' },
-                { chart: lightChart, data: filtered.map(d => d.light), stat: 'light-stat', avgEl: 'light-avg', unit: '%' }
+                { chart: tempChart, data: filtered.map(d => d.temperature), headerId: 'temp-header-label', labelPrefix: 'Temp: ', avgEl: 'temp-avg', unit: '°C' },
+                { chart: humidChart, data: filtered.map(d => d.humidity), headerId: 'humid-header-label', labelPrefix: 'Humidity: ', avgEl: 'humid-avg', unit: '%' },
+                { chart: lightChart, data: filtered.map(d => d.light), headerId: 'light-header-label', labelPrefix: 'Light Index: ', avgEl: 'light-avg', unit: '%' }
             ];
 
             charts.forEach(c => {
@@ -564,7 +528,8 @@
                 c.chart.update('none');
                 
                 const lastVal = c.data[c.data.length - 1];
-                document.getElementById(c.stat).innerText = (lastVal !== null && !isNaN(lastVal)) ? `${lastVal.toFixed(1)}${c.unit}` : '--';
+                const displayVal = (lastVal !== null && !isNaN(lastVal)) ? `${lastVal.toFixed(1)}${c.unit}` : '--';
+                document.getElementById(c.headerId).innerText = `${c.labelPrefix}${displayVal}`;
 
                 const validPoints = c.data.filter(v => v !== null && !isNaN(v));
                 if (validPoints.length > 0) {
@@ -575,15 +540,17 @@
 
             if (allDataPoints.length > 0) {
                 const latest = allDataPoints[allDataPoints.length - 1];
+                const updateTime = new Date(latest.timestamp).toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                lastUpdateLabel.innerText = `Last Heartbeat: ${updateTime}`;
+
                 const isOffline = (now - latest.timestamp) > 600000;
-                
                 if (isOffline) {
-                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> System Offline`;
-                    statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></span> Offline`;
+                    statusBadge.className = "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] bg-rose-50 border border-rose-100 text-rose-600 shadow-sm";
                     liveIndicator.classList.add('hidden');
                 } else {
-                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> System Online`;
-                    statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span> Active`;
+                    statusBadge.className = "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-50 border border-emerald-100 text-emerald-600 shadow-sm";
                     liveIndicator.classList.remove('hidden');
                 }
 
@@ -594,41 +561,65 @@
 
                 if (failing.length > 0) {
                     sensorBanner.style.display = 'block';
-                    faultDetails.innerText = `${failing.join(", ")} sensors returning NULL.`;
+                    faultDetails.innerText = `${failing.join(", ")} diagnostics returning NULL.`;
                 } else { sensorBanner.style.display = 'none'; }
 
-                updateStatCard('Current Temperature', (latest.temperature !== null && !isNaN(latest.temperature)) ? latest.temperature.toFixed(1) : '--', '°C', 'blue');
-                updateStatCard('Current Humidity', (latest.humidity !== null && !isNaN(latest.humidity)) ? latest.humidity.toFixed(1) : '--', '%', 'emerald');
-                updateStatCard('Current Light', (latest.light !== null && !isNaN(latest.light)) ? latest.light.toFixed(1) : '--', '%', 'amber');
+                updateStatCard('Current Temp', (latest.temperature !== null && !isNaN(latest.temperature)) ? latest.temperature.toFixed(1) : '--', '°C', 'blue');
+                updateStatCard('Current Humid', (latest.humidity !== null && !isNaN(latest.humidity)) ? latest.humidity.toFixed(1) : '--', '%', 'emerald');
+                updateStatCard('Current Light', (latest.light !== null && !isNaN(latest.light)) ? `${latest.light.toFixed(1)}%` : '--', '', 'amber');
             }
-            dataCountDisplay.innerText = `${filtered.length} Points Filtered`;
+            dataCountDisplay.innerText = `${filtered.length} Data Sets`;
         }
 
         function addLog(msg, type = 'info') {
             const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             const entry = document.createElement('div');
-            let color = 'text-slate-400', prefix = '●';
-            if (type === 'success') { color = 'text-emerald-400'; prefix = '✓'; }
-            if (type === 'error') { color = 'text-rose-400'; prefix = '×'; }
-            entry.className = `${color} flex gap-3 transition-all duration-300`;
-            entry.innerHTML = `<span class="text-slate-700 shrink-0">[${time}]</span> <span class="shrink-0 font-bold">${prefix}</span> <span>${msg}</span>`;
+            let color = 'text-slate-500', icon = '○';
+            if (type === 'success') { color = 'text-emerald-600 font-bold'; icon = '✓'; }
+            if (type === 'error') { color = 'text-rose-600 font-bold'; icon = '×'; }
+            entry.className = `${color} flex gap-4 transition-all duration-300 items-baseline`;
+            entry.innerHTML = `<span class="text-slate-300 font-bold shrink-0">${time}</span> <span class="shrink-0">${icon}</span> <span>${msg}</span>`;
             logContainer.prepend(entry);
-            if(logContainer.children.length > 30) logContainer.lastChild.remove();
+            if(logContainer.children.length > 25) logContainer.lastChild.remove();
         }
 
         function updateStatCard(key, value, unit = '', color = 'blue') {
             const id = `val-${key.replace(/\s+/g, '-').toLowerCase()}`;
             if (!cardElements[id]) {
                 const card = document.createElement('div');
-                const borderColor = color === 'emerald' ? 'hover:border-emerald-500/30' : color === 'amber' ? 'hover:border-amber-500/30' : 'hover:border-blue-500/30';
-                card.className = `glass-card p-6 rounded-3xl group border-l-2 border-transparent ${borderColor} transition-all duration-500`;
-                card.innerHTML = `<p class="text-slate-500 text-[10px] font-bold mb-2 tracking-[0.2em] uppercase">${key}</p><div class="flex items-baseline gap-1"><h2 id="${id}" class="text-4xl font-black text-white stat-glow">--</h2><span class="text-slate-400 text-sm font-bold uppercase">${unit}</span></div>`;
+                const accent = color === 'emerald' ? 'border-emerald-500/50' : color === 'amber' ? 'border-amber-500/50' : 'border-blue-500/50';
+                card.className = `glass-card p-8 rounded-[2.5rem] border-l-[6px] ${accent} transition-all duration-500`;
+                card.innerHTML = `<p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-2">${key}</p><div class="flex items-baseline gap-1"><h2 id="${id}" class="text-4xl font-black text-slate-900">--</h2><span class="text-slate-400 text-sm font-bold">${unit}</span></div>`;
                 statsGrid.appendChild(card);
                 cardElements[id] = document.getElementById(id);
-                if (statsGrid.children[0]?.innerText.includes("Hardware")) statsGrid.children[0].remove();
+                if (statsGrid.children[0]?.innerText.includes("Synchronizing")) statsGrid.children[0].remove();
             }
             cardElements[id].innerText = value;
         }
+
+        // Listeners
+        onValue(controlRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            hardwareStates.fan = !!data.fan;
+            hardwareStates.light = !!data.light;
+            hardwareStates.mist = !!data.mist;
+            hardwareStates.color = data.color || 'white';
+
+            fanBtn.classList.toggle('btn-active-emerald', hardwareStates.fan);
+            fanStatusText.innerText = hardwareStates.fan ? "ACTIVE" : "STANDBY";
+            fanStatusText.className = `text-[10px] font-bold ${hardwareStates.fan ? 'text-emerald-600' : 'opacity-40'}`;
+
+            lightBtn.classList.toggle('btn-active-amber', hardwareStates.light);
+            lightStatusText.innerText = hardwareStates.light ? "ACTIVE" : "STANDBY";
+            lightStatusText.className = `text-[10px] font-bold ${hardwareStates.light ? 'text-amber-600' : 'opacity-40'}`;
+            
+            mistBtn.classList.toggle('btn-active-blue', hardwareStates.mist);
+            mistStatusText.innerText = hardwareStates.mist ? "ACTIVE" : "STANDBY";
+            mistStatusText.className = `text-[10px] font-bold ${hardwareStates.mist ? 'text-blue-600' : 'opacity-40'}`;
+
+            spectrumPanel.classList.toggle('hidden', !hardwareStates.light);
+            document.querySelectorAll('.color-select-btn').forEach(btn => btn.classList.toggle('control-btn-active', btn.dataset.color === hardwareStates.color));
+        });
 
         onValue(logsRef, (snapshot) => {
             const data = snapshot.val();
@@ -652,16 +643,16 @@
                 const btn = document.createElement('button');
                 btn.onclick = () => setProjectFilter(projKey);
                 btn.dataset.project = projKey;
-                btn.className = `project-btn w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold border border-slate-700/50 hover:bg-white/5 transition-all mb-2 leading-relaxed`;
+                btn.className = `project-btn w-full text-left px-5 py-4 rounded-2xl text-[11px] font-bold border border-slate-200 bg-white/50 hover:bg-white/80 transition-all leading-relaxed`;
                 const p = projKey.split(' | ');
-                btn.innerHTML = `<div class="flex justify-between items-center opacity-60 mb-1"><span>BATCH ${p[0]}</span><span>${p[1]}</span></div><div class="text-xs">${p[2]}</div>`;
-                if(currentProjectFilter === projKey) btn.classList.add('project-btn-active', 'bg-emerald-500/10', 'border-emerald-500/40', 'text-emerald-400');
+                btn.innerHTML = `<div class="flex justify-between items-center opacity-40 mb-1"><span>BATCH ${p[0]}</span><span>${p[1]}</span></div><div class="text-xs text-slate-900">${p[2]}</div>`;
+                if(currentProjectFilter === projKey) btn.classList.add('filter-btn-active');
                 projectContainer.appendChild(btn);
             });
             updateUI();
         });
 
-        setInterval(updateUI, 60000);
+        setInterval(updateUI, 30000);
     </script>
 </body>
 </html>
